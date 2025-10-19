@@ -7,11 +7,11 @@ import Goals from "./components/Goals";
 import Transactions from "./components/Transactions";
 import AIChat from "./components/AIChat";
 import { MOCK_TRANSACTIONS, SAVING_GOAL } from "./data/mockData";
-import { TrendingUp, Award, Sparkles, Target } from "lucide-react";
 
 const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  // Compute category totals
   const categoryData = useMemo(() => {
     const grouped = MOCK_TRANSACTIONS.reduce((acc, t) => {
       acc[t.category] = (acc[t.category] || 0) + t.amount;
@@ -27,11 +27,13 @@ const App = () => {
       .sort((a, b) => b.value - a.value);
   }, []);
 
+  // Total spent
   const totalSpent = useMemo(
     () => MOCK_TRANSACTIONS.reduce((sum, t) => sum + t.amount, 0),
     []
   );
 
+  // ✅ Updated Insights (matches new AIInsights component)
   const insights = useMemo(() => {
     const foodDelivery =
       categoryData.find((c) => c.name === "Food Delivery")?.value || 0;
@@ -41,12 +43,12 @@ const App = () => {
 
     return [
       {
-        type: foodDelivery > groceries ? "warning" : "success",
+        type: foodDelivery > groceries ? "warning" : "tip",
         title:
           foodDelivery > groceries
             ? "Food Delivery Alert! 🍕"
             : "Great Job! 🎉",
-        message:
+        description:
           foodDelivery > groceries
             ? `You're spending €${foodDelivery.toFixed(
                 2
@@ -56,43 +58,45 @@ const App = () => {
                 foodDelivery * 0.6
               ).toFixed(2)}/month!`
             : "You're prioritizing groceries over delivery. That's smart budgeting!",
-        icon: foodDelivery > groceries ? TrendingUp : Award,
+        suggestion:
+          foodDelivery > groceries
+            ? "Try home-cooked meals twice a week to reduce delivery costs."
+            : "Maintain this balance — it’s keeping your finances stable!",
+        impact: foodDelivery > groceries ? "€60/month" : "€120/year saved",
       },
       {
-        type: "info",
+        type: "trend",
         title: "Spending Pattern Detected 📊",
-        message: `Your average transaction is €${avgTransaction.toFixed(
+        description: `Your average transaction is €${avgTransaction.toFixed(
           2
         )}. Most of your spending happens on ${categoryData[0].name.toLowerCase()}.`,
-        icon: Sparkles,
+        suggestion:
+          "You might benefit from setting a limit per category next month.",
+        impact: "Moderate Impact",
       },
       {
         type:
           SAVING_GOAL.current >= SAVING_GOAL.target * 0.7
-            ? "success"
-            : "warning",
+            ? "opportunity"
+            : "tip",
         title:
           SAVING_GOAL.current >= SAVING_GOAL.target * 0.7
             ? "Almost There! 🚀"
             : "Keep Pushing! 💪",
-        message: `You're ${(
+        description: `You're ${(
           (SAVING_GOAL.current / SAVING_GOAL.target) *
           100
-        ).toFixed(0)}% to your €${SAVING_GOAL.target} goal. ${
-          SAVING_GOAL.target - SAVING_GOAL.current > 0
-            ? `Just €${(SAVING_GOAL.target - SAVING_GOAL.current).toFixed(
-                2
-              )} to go!`
-            : "Goal reached!"
-        }`,
-        icon: Target,
+        ).toFixed(0)}% to your €${SAVING_GOAL.target} goal.`,
+        suggestion:
+          "Add an extra €10/week — you’ll hit your target one week early!",
+        impact: "€55 remaining",
       },
     ];
   }, [categoryData, totalSpent]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950">
-      {/* Animated background elements */}
+      {/* Animated background glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/10 rounded-full blur-3xl animate-pulse" />
         <div

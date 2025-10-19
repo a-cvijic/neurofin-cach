@@ -1,0 +1,122 @@
+export const MOCK_TRANSACTIONS = [
+  {
+    id: 1,
+    category: "Food Delivery",
+    amount: 48.9,
+    date: "2025-09-14",
+    emoji: "🍕",
+  },
+  {
+    id: 2,
+    category: "Transport",
+    amount: 22.1,
+    date: "2025-09-15",
+    emoji: "🚗",
+  },
+  {
+    id: 3,
+    category: "Groceries",
+    amount: 85.3,
+    date: "2025-09-18",
+    emoji: "🛒",
+  },
+  {
+    id: 4,
+    category: "Entertainment",
+    amount: 19.99,
+    date: "2025-09-19",
+    emoji: "🎬",
+  },
+  {
+    id: 5,
+    category: "Food Delivery",
+    amount: 35.5,
+    date: "2025-09-21",
+    emoji: "🍕",
+  },
+  {
+    id: 6,
+    category: "Shopping",
+    amount: 120.0,
+    date: "2025-09-22",
+    emoji: "🛍️",
+  },
+  {
+    id: 7,
+    category: "Transport",
+    amount: 18.5,
+    date: "2025-09-24",
+    emoji: "🚗",
+  },
+  {
+    id: 8,
+    category: "Groceries",
+    amount: 92.4,
+    date: "2025-09-25",
+    emoji: "🛒",
+  },
+  {
+    id: 9,
+    category: "Entertainment",
+    amount: 45.0,
+    date: "2025-09-27",
+    emoji: "🎬",
+  },
+  {
+    id: 10,
+    category: "Food Delivery",
+    amount: 28.7,
+    date: "2025-09-28",
+    emoji: "🍕",
+  },
+  {
+    id: 11,
+    category: "Healthcare",
+    amount: 65.0,
+    date: "2025-10-01",
+    emoji: "💊",
+  },
+  {
+    id: 12,
+    category: "Shopping",
+    amount: 89.99,
+    date: "2025-10-03",
+    emoji: "🛍️",
+  },
+  {
+    id: 13,
+    category: "Transport",
+    amount: 25.3,
+    date: "2025-10-05",
+    emoji: "🚗",
+  },
+  {
+    id: 14,
+    category: "Groceries",
+    amount: 78.2,
+    date: "2025-10-08",
+    emoji: "🛒",
+  },
+  {
+    id: 15,
+    category: "Food Delivery",
+    amount: 42.0,
+    date: "2025-10-10",
+    emoji: "🍕",
+  },
+];
+
+export const CATEGORY_COLORS = {
+  "Food Delivery": "#FF6384",
+  Transport: "#36A2EB",
+  Groceries: "#FFCE56",
+  Entertainment: "#4BC0C0",
+  Shopping: "#9966FF",
+  Healthcare: "#FF9F40",
+};
+
+export const SAVING_GOAL = {
+  target: 200,
+  current: 145,
+  weeks: 3,
+};

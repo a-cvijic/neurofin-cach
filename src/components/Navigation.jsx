@@ -7,24 +7,29 @@ const Navigation = ({ activeTab, setActiveTab }) => {
     { id: 'insights', label: 'AI Insights', icon: Sparkles },
     { id: 'goals', label: 'Goals', icon: Target },
     { id: 'transactions', label: 'Transactions', icon: Calendar },
-    { id: 'chat', label: 'AI Chat', icon: MessageCircle }
+    { id: 'chat', label: 'AI Chat', icon: MessageCircle },
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <nav className="sticky top-0 z-20 backdrop-blur-md bg-gradient-to-r from-gray-950/80 via-slate-900/80 to-gray-950/80 border-b border-emerald-500/10 shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex gap-1">
-          {tabs.map(tab => (
+        <div className="flex items-center justify-center md:justify-start gap-1">
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'text-indigo-600 border-b-2 border-indigo-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 font-medium text-sm md:text-base transition-all rounded-md
+                ${
+                  activeTab === tab.id
+                    ? 'text-emerald-400 border-b-2 border-emerald-400 bg-gradient-to-br from-emerald-500/10 to-transparent'
+                    : 'text-gray-400 hover:text-emerald-300 hover:bg-gradient-to-br hover:from-slate-800/50 hover:to-slate-900/50'
+                }`}
             >
-              <tab.icon className="w-4 h-4" />
+              <tab.icon
+                className={`w-4 h-4 ${
+                  activeTab === tab.id ? 'text-emerald-400' : 'text-gray-400'
+                }`}
+              />
               <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}

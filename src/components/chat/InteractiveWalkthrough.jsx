@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Sparkles, Brain, ChevronRight, X } from "lucide-react";
 
 export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, onClose }) {
+  const [highlightRect, setHighlightRect] = useState(null);
+
   const steps = [
     {
       id: 0,
@@ -22,17 +24,18 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
       id: 2,
       title: "Visual Analytics",
       description: "Every analysis comes with interactive charts showing trends, comparisons, and projections. Charts update in real-time as your financial data changes.",
-      highlight: "chat-area",
-      position: "bottom",
+      highlight: "chat-messages",
+      position: "left",
       icon: "📊"
     },
     {
       id: 3,
       title: "Action Chips",
       description: "After viewing any category, click these chips to dive deeper:\n• 'Show insights' → AI recommendations\n• 'Explain more' → detailed analysis\n• 'Give me actions' → specific steps",
-      highlight: "chips",
-      position: "bottom",
-      icon: "🔍"
+      highlight: "action-chips",
+      position: "top",
+      icon: "🔗",
+      scrollTarget: "action-chips"
     },
     {
       id: 4,
@@ -40,7 +43,8 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
       description: "Type naturally! Try 'How can I save more?' or 'Show my portfolio health' or 'Compare spending to last month'. The AI understands context.",
       highlight: "input",
       position: "top",
-      icon: "💬"
+      icon: "💬",
+      scrollTarget: "input"
     },
     {
       id: 5,
@@ -55,87 +59,214 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
   const currentStep = steps[step];
   const progress = ((step + 1) / steps.length) * 100;
 
-  const getHighlightStyle = () => {
-    switch(currentStep.highlight) {
-      case "left-dock":
-        return {
-          outline: "4px solid rgba(16, 185, 129, 0.6)",
-          outlineOffset: "8px",
-          borderRadius: "24px",
-          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 60px rgba(16, 185, 129, 0.4)",
-          position: "relative",
-          zIndex: 60
-        };
-      case "chat-area":
-        return {
-          outline: "4px solid rgba(16, 185, 129, 0.6)",
-          outlineOffset: "8px",
-          borderRadius: "24px",
-          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 60px rgba(16, 185, 129, 0.4)",
-          position: "relative",
-          zIndex: 60
-        };
-      case "chips":
-        return {
-          outline: "4px solid rgba(16, 185, 129, 0.6)",
-          outlineOffset: "8px",
-          borderRadius: "24px",
-          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 60px rgba(16, 185, 129, 0.4)",
-          position: "relative",
-          zIndex: 60
-        };
-      case "input":
-        return {
-          outline: "4px solid rgba(16, 185, 129, 0.6)",
-          outlineOffset: "8px",
-          borderRadius: "9999px",
-          boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.7), 0 0 60px rgba(16, 185, 129, 0.4)",
-          position: "relative",
-          zIndex: 60
-        };
-      default:
-        return null;
-    }
-  };
+  // Update highlight rect on mount and when step changes
+  useEffect(() => {
+    if (currentStep.highlight) {
+      // Scroll highlighted element into view
+      if (currentStep.scrollTarget) {
+        const el = document.querySelector(`[data-walkthrough-id="${currentStep.scrollTarget}"]`);
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 100);
+        }
+      }
 
-  const getTooltipPosition = () => {
-    const base = "fixed z-[70] max-w-md";
+      const selector = `[data-walkthrough-id="${currentStep.highlight}"]`;
+      const el = document.querySelector(selector);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        setHighlightRect({
+          top: rect.top - 8,
+          left: rect.left - 8,
+          width: rect.width + 16,
+          height: rect.height + 16,
+          radius: 24
+        });
+      }
+    } else {
+      setHighlightRect(null);
+    }
+  }, [step, currentStep.highlight]);
+
+  const getTooltipStyle = () => {
+    if (!highlightRect) {
+      return {
+        position: "fixed",
+        zIndex: 70,
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+        maxWidth: "24rem"
+      };
+    }
+
+    const padding = 20;
+    const tooltipWidth = 384; // 24rem in pixels
+    const tooltipHeight = 300; // approximate
+    const viewportPadding = 16;
+    
+    const baseStyle = {
+      position: "fixed",
+      zIndex: 70,
+      maxWidth: "24rem"
+    };
+
+    // Helper to constrain position within viewport
+    const constrainPosition = (left, top) => {
+      let constrainedLeft = left;
+      let constrainedTop = top;
+
+      // Keep within horizontal bounds
+      if (constrainedLeft < viewportPadding) {
+        constrainedLeft = viewportPadding;
+      } else if (constrainedLeft + tooltipWidth > window.innerWidth - viewportPadding) {
+        constrainedLeft = window.innerWidth - tooltipWidth - viewportPadding;
+      }
+
+      // Keep within vertical bounds
+      if (constrainedTop < viewportPadding) {
+        constrainedTop = viewportPadding;
+      } else if (constrainedTop + tooltipHeight > window.innerHeight - viewportPadding) {
+        constrainedTop = window.innerHeight - tooltipHeight - viewportPadding;
+      }
+
+      return { left: constrainedLeft, top: constrainedTop };
+    };
+
     switch(currentStep.position) {
-      case "right":
-        return `${base} left-[23rem] top-1/2 -translate-y-1/2`;
-      case "bottom":
-        return `${base} left-1/2 -translate-x-1/2 top-[60%]`;
-      case "top":
-        return `${base} left-1/2 -translate-x-1/2 bottom-24`;
+      case "right": {
+        const pos = constrainPosition(
+          highlightRect.left + highlightRect.width + padding,
+          highlightRect.top + highlightRect.height / 2 - tooltipHeight / 2
+        );
+        return {
+          ...baseStyle,
+          left: pos.left,
+          top: pos.top
+        };
+      }
+      case "left": {
+        const pos = constrainPosition(
+          highlightRect.left - tooltipWidth - padding,
+          highlightRect.top + highlightRect.height / 2 - tooltipHeight / 2
+        );
+        return {
+          ...baseStyle,
+          left: pos.left,
+          top: pos.top
+        };
+      }
+      case "bottom": {
+        const pos = constrainPosition(
+          window.innerWidth / 2 - tooltipWidth / 2,
+          highlightRect.top + highlightRect.height + padding
+        );
+        return {
+          ...baseStyle,
+          left: pos.left,
+          top: pos.top
+        };
+      }
+      case "top": {
+        const pos = constrainPosition(
+          window.innerWidth / 2 - tooltipWidth / 2,
+          highlightRect.top - tooltipHeight - padding
+        );
+        return {
+          ...baseStyle,
+          left: pos.left,
+          top: pos.top
+        };
+      }
       case "center":
       default:
-        return `${base} left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2`;
+        return {
+          position: "fixed",
+          zIndex: 70,
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          maxWidth: "24rem"
+        };
     }
   };
 
   return (
     <>
-      {/* Backdrop and highlight effect */}
+      {/* Dark Backdrop with spotlight effect */}
       {currentStep.highlight && (
-        <div 
-          className="fixed inset-0 pointer-events-none z-50"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-        />
+        <>
+          <div 
+            className="fixed inset-0 bg-black/70 z-50 transition-opacity duration-300"
+            onClick={() => {}} // Prevent clicks on backdrop
+          />
+          
+          {/* Spotlight cutout */}
+          {highlightRect && (
+            <svg
+              className="fixed inset-0 z-50 pointer-events-none"
+              width="100%"
+              height="100%"
+              style={{ mixBlendMode: "multiply" }}
+            >
+              <defs>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(16, 185, 129, 0.4)" />
+                  <stop offset="100%" stopColor="rgba(16, 185, 129, 0)" />
+                </radialGradient>
+              </defs>
+              
+              {/* Glow around highlight */}
+              <rect
+                x={highlightRect.left - 20}
+                y={highlightRect.top - 20}
+                width={highlightRect.width + 40}
+                height={highlightRect.height + 40}
+                rx={highlightRect.radius}
+                fill="url(#glow)"
+                opacity="0.6"
+              />
+              
+              {/* Animated border */}
+              <rect
+                x={highlightRect.left}
+                y={highlightRect.top}
+                width={highlightRect.width}
+                height={highlightRect.height}
+                rx={highlightRect.radius}
+                fill="none"
+                stroke="rgba(16, 185, 129, 0.8)"
+                strokeWidth="2"
+                style={{
+                  animation: "borderPulse 2s ease-in-out infinite"
+                }}
+              />
+            </svg>
+          )}
+
+          <style>{`
+            @keyframes borderPulse {
+              0%, 100% { stroke-width: 2; stroke: rgba(16, 185, 129, 0.8); }
+              50% { stroke-width: 3; stroke: rgba(16, 185, 129, 1); }
+            }
+          `}</style>
+        </>
       )}
 
-      {/* Floating tooltip card */}
-      <div className={getTooltipPosition()}>
-        <div className="bg-gradient-to-br from-slate-900/95 to-slate-950/95 backdrop-blur-xl border-2 border-emerald-500/40 rounded-2xl shadow-2xl shadow-emerald-500/20 p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      {/* Tooltip Card */}
+      <div style={getTooltipStyle()}>
+        <div className="bg-gradient-to-br from-slate-900/98 to-slate-950/98 backdrop-blur-xl border-2 border-emerald-500/50 rounded-2xl shadow-2xl shadow-emerald-500/30 p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Header with icon and progress */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3 flex-1">
               {currentStep.icon && (
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/30 flex-shrink-0">
                   {currentStep.icon}
                 </div>
               )}
               {!currentStep.icon && (
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-emerald-500/30">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-500 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-emerald-500/30 flex-shrink-0">
                   {step + 1}
                 </div>
               )}
@@ -153,7 +284,7 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors ml-2 p-1 hover:bg-slate-800 rounded-lg"
+              className="text-gray-400 hover:text-white transition-colors ml-2 p-1 hover:bg-slate-800 rounded-lg flex-shrink-0"
             >
               <X className="w-5 h-5" />
             </button>
@@ -161,7 +292,7 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
 
           {/* Content */}
           <div className="mb-5">
-            <h3 className="text-xl font-bold text-emerald-300 mb-2 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-emerald-300 mb-2 flex items-center gap-2">
               {currentStep.title}
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
@@ -224,33 +355,7 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
           <div className="absolute -top-1 -right-1 w-20 h-20 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -bottom-1 -left-1 w-20 h-20 bg-green-500/20 rounded-full blur-2xl pointer-events-none" />
         </div>
-
-        {/* Pointer arrow for non-center positions */}
-        {currentStep.position !== "center" && currentStep.position === "right" && (
-          <div className="absolute left-0 top-1/2 -translate-x-3 -translate-y-1/2">
-            <div className="w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-emerald-500/40" />
-          </div>
-        )}
-        {currentStep.position === "bottom" && (
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-3">
-            <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-emerald-500/40" />
-          </div>
-        )}
-        {currentStep.position === "top" && (
-          <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-3">
-            <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-emerald-500/40" />
-          </div>
-        )}
       </div>
-
-      {/* Pulsing attention grabber on highlighted element */}
-      {currentStep.highlight && (
-        <div className="fixed inset-0 pointer-events-none z-[65]">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-4 h-4 bg-emerald-400 rounded-full animate-ping" />
-          </div>
-        </div>
-      )}
     </>
   );
 }

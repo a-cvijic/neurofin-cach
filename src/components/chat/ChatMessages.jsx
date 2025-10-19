@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ChatMessages({ messages, onChip }) {
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-4">
+    <div className="mx-auto w-full max-w-6xl space-y-4" data-walkthrough-id="chat-messages">
       {messages.map((m) => {
         const isUser = m.sender === "user";
         return (
@@ -13,9 +13,9 @@ export default function ChatMessages({ messages, onChip }) {
             <div
               className={`${
                 isUser
-                  ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-3xl rounded-br-none shadow-lg shadow-emerald-500/20"
-                  : "bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/30 text-gray-100 rounded-3xl rounded-bl-none shadow-xl"
-              } backdrop-blur px-5 py-4 w-full md:w-[82%] lg:w-[86%] 2xl:w-[90%] transition-all hover:shadow-2xl`}
+                  ? "bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-3xl rounded-br-none shadow-lg shadow-emerald-500/20 md:w-auto md:max-w-xs"
+                  : "bg-gradient-to-br from-slate-800 to-slate-900 border border-emerald-500/30 text-gray-100 rounded-3xl rounded-bl-none shadow-xl w-full md:w-[82%] lg:w-[86%] 2xl:w-[90%]"
+              } backdrop-blur px-5 py-4 transition-all hover:shadow-2xl`}
             >
               {/* Header for AI cards */}
               {!isUser && (m.title || m.subtitle) && (
@@ -80,7 +80,7 @@ export default function ChatMessages({ messages, onChip }) {
 
               {/* Action Chips */}
               {!isUser && Array.isArray(m.chips) && m.chips.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-emerald-500/20 walkthrough-chips">
+                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-emerald-500/20 walkthrough-chips" data-walkthrough-id="action-chips">
                   {m.chips.map((c) => (
                     <button
                       key={c}

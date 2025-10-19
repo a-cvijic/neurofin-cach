@@ -15,10 +15,28 @@ const Dashboard = ({ categoryData, totalSpent, transactionCount, savingGoal }) =
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto">
         
+        {/* Header */}
+        <div className="mb-10">
+          <div className="rounded-2xl border-2 border-emerald-500/25 bg-gradient-to-r from-slate-900/90 to-slate-950/90 backdrop-blur-md p-6 shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-black bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-300 bg-clip-text text-transparent">
+                  Dashboard
+                </h1>
+                <p className="text-emerald-400/80 mt-2 text-sm">Real-time financial overview & insights</p>
+              </div>
+              <div className="hidden md:flex items-center gap-2">
+                <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span className="text-emerald-400/70 text-xs uppercase tracking-widest font-semibold">Live Data</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
           {[
             { icon: Wallet, label: 'Total Spent', value: `€${totalSpent.toFixed(2)}`, color: 'from-green-500 to-emerald-600' },
             { icon: TrendingUp, label: 'Transactions', value: transactionCount, color: 'from-blue-500 to-cyan-600' },
@@ -39,7 +57,7 @@ const Dashboard = ({ categoryData, totalSpent, transactionCount, savingGoal }) =
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           
           {/* Spending Breakdown Pie */}
           <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-green-500/20 rounded-2xl p-6">

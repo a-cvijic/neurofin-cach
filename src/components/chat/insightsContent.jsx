@@ -1,3 +1,4 @@
+// src/components/chat/insightsContent.jsx
 export const insights = {
   spending: "💡 **Key Insights:**\n\n• 37% of spending is non-essential (delivery + entertainment)\n• Weekend spending is 62% higher than weekdays\n• You're €60 over budget this month\n\n**Impact:** Reducing non-essential spend by 30% saves ~€120/month = €1,440/year",
   

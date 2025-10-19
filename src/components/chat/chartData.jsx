@@ -1,3 +1,4 @@
+// src/components/chat/chartData.jsx
 export const chartData = {
   spending: [
     { week: "Week 1", amount: 420, budget: 450, lastMonth: 380 },

@@ -33,7 +33,7 @@ const App = () => {
     []
   );
 
-  // ✅ Updated Insights (matches new AIInsights component)
+  // Insights
   const insights = useMemo(() => {
     const foodDelivery =
       categoryData.find((c) => c.name === "Food Delivery")?.value || 0;

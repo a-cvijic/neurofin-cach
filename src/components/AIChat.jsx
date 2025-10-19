@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import LeftDock from "./chat/LeftDock";
 import ChatMessages from "./chat/ChatMessages";
 import NeuralLoader from "./chat/NeuralLoader";

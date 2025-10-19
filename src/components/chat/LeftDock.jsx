@@ -1,4 +1,3 @@
-// src/components/chat/LeftDock.jsx
 import React from "react";
 import { Receipt, PiggyBank, PieChart, Activity, Target, BellRing, Lightbulb, Wallet } from "lucide-react";
 

@@ -7,7 +7,7 @@ export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, o
   const steps = [
     {
       id: 0,
-      title: "Welcome to NeuroFin AI Coach! 🧠",
+      title: "Welcome to mBank OTP AI Coach! 🧠",
       description: "Your intelligent financial companion powered by neural networks. Let's take a 30-second tour to show you how to get the most insights from your finances.",
       highlight: null,
       position: "center"

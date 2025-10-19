@@ -14,7 +14,7 @@ const Header = ({ totalSpent }) => {
               </div>
             </div>
             <div>
-              <h1 className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">NeuroFin Coach</h1>
+              <h1 className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">mBank OTP</h1>
               <p className="text-xs text-gray-400">Your AI Financial Assistant</p>
             </div>
           </div>

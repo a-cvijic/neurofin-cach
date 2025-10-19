@@ -91,36 +91,47 @@ const App = () => {
   }, [categoryData, totalSpent]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <Header totalSpent={totalSpent} />
-      <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/10 rounded-full blur-3xl animate-pulse" />
+        <div
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        />
+      </div>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
-        {activeTab === "dashboard" && (
-          <Dashboard
-            categoryData={categoryData}
-            totalSpent={totalSpent}
-            transactionCount={MOCK_TRANSACTIONS.length}
-            savingGoal={SAVING_GOAL}
-          />
-        )}
+      <div className="relative z-10">
+        <Header totalSpent={totalSpent} />
+        <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {activeTab === "insights" && <AIInsights insights={insights} />}
+        <main className="max-w-7xl mx-auto px-6 py-6">
+          {activeTab === "dashboard" && (
+            <Dashboard
+              categoryData={categoryData}
+              totalSpent={totalSpent}
+              transactionCount={MOCK_TRANSACTIONS.length}
+              savingGoal={SAVING_GOAL}
+            />
+          )}
 
-        {activeTab === "goals" && <Goals savingGoal={SAVING_GOAL} />}
+          {activeTab === "insights" && <AIInsights insights={insights} />}
 
-        {activeTab === "transactions" && (
-          <Transactions transactions={MOCK_TRANSACTIONS} />
-        )}
+          {activeTab === "goals" && <Goals goals={[SAVING_GOAL]} />}
 
-        {activeTab === "chat" && (
-          <AIChat
-            categoryData={categoryData}
-            totalSpent={totalSpent}
-            savingGoal={SAVING_GOAL}
-          />
-        )}
-      </main>
+          {activeTab === "transactions" && (
+            <Transactions transactions={MOCK_TRANSACTIONS} />
+          )}
+
+          {activeTab === "chat" && (
+            <AIChat
+              categoryData={categoryData}
+              totalSpent={totalSpent}
+              savingGoal={SAVING_GOAL}
+            />
+          )}
+        </main>
+      </div>
     </div>
   );
 };

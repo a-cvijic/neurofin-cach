@@ -1,342 +1,588 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Send, Sparkles, TrendingUp, Zap, Target, Lightbulb, BarChart3, ChevronRight, ArrowUpRight, ArrowDownLeft, MessageCircle, Brain, Wand2, PieChart, BarChart as BarChartIcon, LineChart as LineChartIcon, TrendingDown, Activity, Wallet, DollarSign } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, PieChart as RechartsChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ScatterChart, Scatter } from 'recharts';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, Sparkles, TrendingDown, TrendingUp, Target, Zap, PiggyBank, Lightbulb, Award, AlertCircle } from 'lucide-react';
-import { getAIResponse } from '../utils/aiResponses';
-
-const AIChat = ({ categoryData, totalSpent, savingGoal }) => {
-  const [chatMessages, setChatMessages] = useState([
-    { 
-      role: 'assistant', 
-      content: "Hi! I'm your NeuroFin AI Coach 🤖\n\nI can help you:\n• Analyze spending patterns\n• Find saving opportunities\n• Track your financial goals\n• Give personalized tips\n\nWhat would you like to know?",
-      hasGraphic: true,
-      graphicType: 'welcome'
+export default function AIChatPage() {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: 'ai',
+      text: "Hi! I'm your NeuroFin AI Coach 🧠",
+      type: 'message',
+      showIcon: true,
+      initial: true
     }
   ]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
+  
+  const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [selectedWidget, setSelectedWidget] = useState(null);
+  const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
-  }, [chatMessages]);
+  }, [messages, loading]);
 
-  const determineGraphicType = (message) => {
-    const msg = message.toLowerCase();
-    if (msg.includes('breakdown') || msg.includes('spending')) return 'spending';
-    if (msg.includes('food') || msg.includes('delivery')) return 'food';
-    if (msg.includes('goal') || msg.includes('save')) return 'goal';
-    if (msg.includes('tip') || msg.includes('advice')) return 'tips';
-    if (msg.includes('transport')) return 'transport';
-    return 'general';
+  const quickInsights = [
+    {
+      id: 1,
+      icon: TrendingUp,
+      title: 'Smart Analysis',
+      subtitle: 'Real-time spending patterns',
+      color: 'from-green-500 via-emerald-500 to-teal-500',
+      accent: 'bg-green-500',
+      gradient: 'from-green-600/20 to-emerald-600/5'
+    },
+    {
+      id: 2,
+      icon: Zap,
+      title: 'Instant Savings',
+      subtitle: 'Find money you didn\'t know you had',
+      color: 'from-blue-500 via-cyan-500 to-sky-500',
+      accent: 'bg-blue-500',
+      gradient: 'from-blue-600/20 to-cyan-600/5'
+    },
+    {
+      id: 3,
+      icon: Target,
+      title: 'Goal Mastery',
+      subtitle: 'Predictive goal achievement',
+      color: 'from-purple-500 via-pink-500 to-rose-500',
+      accent: 'bg-purple-500',
+      gradient: 'from-purple-600/20 to-pink-600/5'
+    },
+    {
+      id: 4,
+      icon: Lightbulb,
+      title: 'AI Insights',
+      subtitle: 'Personalized wealth strategies',
+      color: 'from-amber-500 via-orange-500 to-red-500',
+      accent: 'bg-amber-500',
+      gradient: 'from-amber-600/20 to-orange-600/5'
+    },
+    {
+      id: 5,
+      icon: BarChartIcon,
+      title: 'Budget Tracker',
+      subtitle: 'Monitor your spending limits',
+      color: 'from-indigo-500 via-purple-500 to-pink-500',
+      accent: 'bg-indigo-500',
+      gradient: 'from-indigo-600/20 to-purple-600/5'
+    },
+    {
+      id: 6,
+      icon: Activity,
+      title: 'Health Check',
+      subtitle: 'Financial wellness score',
+      color: 'from-red-500 via-rose-500 to-pink-500',
+      accent: 'bg-red-500',
+      gradient: 'from-red-600/20 to-rose-600/5'
+    },
+    {
+      id: 7,
+      icon: Wallet,
+      title: 'Portfolio View',
+      subtitle: 'See all your assets',
+      color: 'from-cyan-500 via-blue-500 to-indigo-500',
+      accent: 'bg-cyan-500',
+      gradient: 'from-cyan-600/20 to-blue-600/5'
+    },
+    {
+      id: 8,
+      icon: Sparkles,
+      title: 'Smart Recommendations',
+      subtitle: 'AI-powered suggestions',
+      color: 'from-yellow-500 via-amber-500 to-orange-500',
+      accent: 'bg-yellow-500',
+      gradient: 'from-yellow-600/20 to-amber-600/5'
+    }
+  ];
+
+  const userQuestions = [
+    { icon: '💰', text: 'How much did I spend this month?' },
+    { icon: '📊', text: 'Compare my spending to last month' },
+    { icon: '🎯', text: 'Help me create a savings plan' },
+    { icon: '🚨', text: 'Alert me about unusual spending' },
+    { icon: '🏦', text: 'Best investment options for me' },
+    { icon: '📈', text: 'What\'s my wealth score?' },
+    { icon: '💳', text: 'Optimize my credit usage' },
+    { icon: '🎁', text: 'Reward program insights' }
+  ];
+
+  const suggestedResponses = [
+    "Show me detailed analysis",
+    "What should I do?",
+    "Explain more",
+    "Compare with previous"
+  ];
+
+  const chartData = {
+    spendingTrends: [
+      { month: 'Week 1', amount: 540, budget: 600 },
+      { month: 'Week 2', amount: 680, budget: 600 },
+      { month: 'Week 3', amount: 420, budget: 600 },
+      { month: 'Week 4', amount: 780, budget: 600 },
+      { month: 'Week 5', amount: 520, budget: 600 },
+    ],
+    spendingByCategory: [
+      { name: 'Food', value: 35, color: '#10b981' },
+      { name: 'Transport', value: 20, color: '#059669' },
+      { name: 'Entertainment', value: 15, color: '#047857' },
+      { name: 'Shopping', value: 18, color: '#065f46' },
+      { name: 'Other', value: 12, color: '#064e3b' }
+    ],
+    predictions: [
+      { day: 'Mon', spending: 120, predicted: 115 },
+      { day: 'Tue', spending: 95, predicted: 100 },
+      { day: 'Wed', spending: 140, predicted: 138 },
+      { day: 'Thu', spending: 110, predicted: 112 },
+      { day: 'Fri', spending: 180, predicted: 185 },
+    ],
+    budgetComparison: [
+      { category: 'Food', budget: 500, spent: 450, available: 50 },
+      { category: 'Transport', budget: 300, spent: 280, available: 20 },
+      { category: 'Entertainment', budget: 200, spent: 180, available: 20 },
+      { category: 'Shopping', budget: 400, spent: 350, available: 50 },
+    ],
+    healthScore: [
+      { metric: 'Savings Rate', value: 72 },
+      { metric: 'Budget Adherence', value: 88 },
+      { metric: 'Spending Trend', value: 65 },
+      { metric: 'Goals Progress', value: 78 },
+    ],
+    monthlyComparison: [
+      { x: 100, y: 540, name: 'Jan' },
+      { x: 200, y: 680, name: 'Feb' },
+      { x: 300, y: 420, name: 'Mar' },
+      { x: 400, y: 780, name: 'Apr' },
+      { x: 500, y: 520, name: 'May' },
+    ]
   };
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-    
-    const userMsg = { role: 'user', content: inputMessage };
-    setChatMessages(prev => [...prev, userMsg]);
-    const currentInput = inputMessage;
-    setInputMessage('');
-    setIsTyping(true);
-    
+  const handleQuickInsight = (insight) => {
+    setSelectedWidget(insight.id);
+    const userMessage = {
+      id: messages.length + 1,
+      sender: 'user',
+      text: insight.title,
+      type: 'message'
+    };
+    setMessages([...messages, userMessage]);
+    setLoading(true);
+
     setTimeout(() => {
-      const aiResponse = getAIResponse(currentInput, categoryData, totalSpent, savingGoal);
-      const graphicType = determineGraphicType(currentInput);
-      
-      setChatMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: aiResponse,
-        hasGraphic: true,
-        graphicType: graphicType
-      }]);
-      setIsTyping(false);
+      let chart = null;
+      if (insight.id === 1) chart = { type: 'area', data: chartData.spendingTrends };
+      if (insight.id === 2) chart = { type: 'pie', data: chartData.spendingByCategory };
+      if (insight.id === 3) chart = { type: 'line', data: chartData.predictions };
+      if (insight.id === 4) {
+        chart = { 
+          type: 'widget', 
+          data: {
+            savings: '€240',
+            savingsPercent: '12%',
+            category: 'Dining',
+            tips: [
+              '🔥 You spent 18% more on dining this month',
+              '💡 Switch to meal prep, save €50/week',
+              '⚡ Set spending limit alerts'
+            ]
+          }
+        };
+      }
+      if (insight.id === 5) chart = { type: 'bar', data: chartData.budgetComparison };
+      if (insight.id === 6) chart = { type: 'health', data: chartData.healthScore };
+      if (insight.id === 7) chart = { type: 'scatter', data: chartData.monthlyComparison };
+      if (insight.id === 8) chart = { type: 'area', data: chartData.spendingTrends };
+
+      const aiResponse = {
+        id: messages.length + 2,
+        sender: 'ai',
+        text: insight.id === 4 ? 'Here\'s your personalized strategy:' : `Deep dive into ${insight.title.toLowerCase()}:`,
+        type: 'message',
+        showIcon: true,
+        chart: chart,
+        showSuggestions: true
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setLoading(false);
     }, 1200);
   };
 
-  const handleQuickQuestion = (question) => {
-    setInputMessage(question);
+  const handleUserQuestion = (question) => {
+    const userMessage = {
+      id: messages.length + 1,
+      sender: 'user',
+      text: question,
+      type: 'message'
+    };
+    setMessages([...messages, userMessage]);
+    setInputValue('');
+    setLoading(true);
+
     setTimeout(() => {
-      handleSendMessage();
-    }, 100);
+      const aiResponse = {
+        id: messages.length + 2,
+        sender: 'ai',
+        text: 'Analyzing your financial data with AI...',
+        type: 'message',
+        showIcon: true,
+        chart: { type: 'area', data: chartData.spendingTrends },
+        showSuggestions: true
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setLoading(false);
+    }, 1500);
   };
 
-  const MessageGraphic = ({ type }) => {
-    switch(type) {
-      case 'welcome':
-        return (
-          <div className="relative w-full h-32 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-xl mb-3 overflow-hidden animate-gradient">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <Sparkles className="w-16 h-16 text-white animate-pulse" />
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full animate-bounce"></div>
-                <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-400 rounded-full animate-bounce" style={{animationDelay: '0.3s'}}></div>
-              </div>
-            </div>
-            <div className="absolute bottom-2 left-2 text-white text-xs font-bold opacity-75">
-              AI-Powered Financial Coach
-            </div>
-          </div>
-        );
-      
-      case 'spending':
-        return (
-          <div className="grid grid-cols-3 gap-2 mb-3">
-            {categoryData.slice(0, 3).map((cat, i) => (
-              <div key={i} className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg p-3 text-center transform hover:scale-105 transition-transform">
-                <div className="text-3xl mb-1">{cat.emoji}</div>
-                <div className="text-xs font-bold text-indigo-900">€{cat.value.toFixed(0)}</div>
-                <div className="text-xs text-indigo-600">{cat.name}</div>
-              </div>
-            ))}
-          </div>
-        );
-      
-      case 'food':
-        const foodSpending = categoryData.find(c => c.name === "Food Delivery")?.value || 0;
-        const potentialSaving = foodSpending * 0.6;
-        return (
-          <div className="bg-gradient-to-br from-orange-50 to-red-100 rounded-xl p-4 mb-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="text-3xl">🍕</div>
-                <div>
-                  <div className="text-sm font-bold text-red-900">Food Delivery</div>
-                  <div className="text-xs text-red-600">€{foodSpending.toFixed(2)} spent</div>
-                </div>
-              </div>
-              <TrendingDown className="w-8 h-8 text-red-500" />
-            </div>
-            <div className="bg-white bg-opacity-70 rounded-lg p-2 mt-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">Potential Savings:</span>
-                <span className="text-lg font-bold text-green-600">€{potentialSaving.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 'goal':
-        const progress = (savingGoal.current / savingGoal.target) * 100;
-        return (
-          <div className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 mb-3">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <Target className="w-7 h-7 text-white" />
-              </div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-green-900">Saving Goal</div>
-                <div className="text-xs text-green-600">€{savingGoal.current} / €{savingGoal.target}</div>
-              </div>
-              <div className="text-2xl font-bold text-green-600">{progress.toFixed(0)}%</div>
-            </div>
-            <div className="w-full h-3 bg-white bg-opacity-70 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-green-400 to-emerald-600 transition-all duration-1000 relative"
-                style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-white opacity-30 animate-pulse"></div>
-              </div>
-            </div>
-            {progress >= 70 && (
-              <div className="mt-2 text-center">
-                <Award className="w-6 h-6 text-yellow-500 inline-block animate-bounce" />
-                <span className="text-xs text-green-700 ml-1 font-bold">You're crushing it!</span>
-              </div>
-            )}
-          </div>
-        );
-      
-      case 'tips':
-        return (
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            {[
-              { icon: '🍳', label: 'Meal Prep', color: 'from-yellow-50 to-orange-100' },
-              { icon: '🚴', label: 'Bike More', color: 'from-green-50 to-teal-100' },
-              { icon: '💰', label: 'Auto-Save', color: 'from-blue-50 to-indigo-100' },
-              { icon: '📊', label: 'Track Daily', color: 'from-purple-50 to-pink-100' },
-            ].map((tip, i) => (
-              <div key={i} className={`bg-gradient-to-br ${tip.color} rounded-lg p-3 text-center transform hover:scale-105 transition-transform`}>
-                <div className="text-2xl mb-1">{tip.icon}</div>
-                <div className="text-xs font-bold text-gray-700">{tip.label}</div>
-              </div>
-            ))}
-          </div>
-        );
-      
-      case 'transport':
-        const transportCost = categoryData.find(c => c.name === "Transport")?.value || 0;
-        return (
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-100 rounded-xl p-4 mb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="text-3xl">🚗</div>
-                <div>
-                  <div className="text-sm font-bold text-blue-900">Transport</div>
-                  <div className="text-xs text-blue-600">€{transportCost.toFixed(2)} this month</div>
-                </div>
-              </div>
-              <Zap className="w-8 h-8 text-blue-500 animate-pulse" />
-            </div>
-            <div className="grid grid-cols-2 gap-2 mt-3">
-              <div className="bg-white bg-opacity-70 rounded p-2 text-center">
-                <div className="text-xl">🚌</div>
-                <div className="text-xs text-gray-600">Public: ~€50</div>
-              </div>
-              <div className="bg-white bg-opacity-70 rounded p-2 text-center">
-                <div className="text-xl">🚴</div>
-                <div className="text-xs text-gray-600">Bike: FREE!</div>
-              </div>
-            </div>
-          </div>
-        );
-      
-      default:
-        return (
-          <div className="flex gap-2 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
-              <Lightbulb className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3">
-              <div className="text-xs font-bold text-indigo-900">Smart Insight</div>
-              <div className="text-xs text-indigo-600">Based on your spending patterns</div>
-            </div>
-          </div>
-        );
+  const handleSuggestedResponse = (response) => {
+    const userMessage = {
+      id: messages.length + 1,
+      sender: 'user',
+      text: response,
+      type: 'message'
+    };
+    setMessages([...messages, userMessage]);
+    setLoading(true);
+
+    setTimeout(() => {
+      const aiResponse = {
+        id: messages.length + 2,
+        sender: 'ai',
+        text: 'Processing your request with AI...',
+        type: 'message',
+        showIcon: true,
+        chart: { type: 'area', data: chartData.spendingTrends },
+        showSuggestions: true
+      };
+      setMessages(prev => [...prev, aiResponse]);
+      setLoading(false);
+    }, 1200);
+  };
+
+  const handleSend = () => {
+    if (inputValue.trim()) {
+      const newMessage = {
+        id: messages.length + 1,
+        sender: 'user',
+        text: inputValue,
+        type: 'message'
+      };
+      setMessages([...messages, newMessage]);
+      setInputValue('');
+      setLoading(true);
+
+      setTimeout(() => {
+        const aiResponse = {
+          id: messages.length + 2,
+          sender: 'ai',
+          text: 'Processing your request with advanced AI...',
+          type: 'message',
+          showIcon: true,
+          chart: { type: 'area', data: chartData.spendingTrends },
+          showSuggestions: true
+        };
+        setMessages(prev => [...prev, aiResponse]);
+        setLoading(false);
+      }, 1500);
     }
   };
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      {/* Enhanced Quick Actions */}
-      <div className="relative bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-6 text-white mb-4 overflow-hidden animate-gradient">
-        {/* Floating elements */}
-        <div className="absolute top-2 right-2 w-16 h-16 bg-white opacity-10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-2 left-2 w-20 h-20 bg-white opacity-10 rounded-full blur-xl animate-pulse" style={{animationDelay: '1s'}}></div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="relative">
-              <MessageCircle className="w-8 h-8" />
-              <Sparkles className="w-4 h-4 absolute -top-1 -right-1 animate-spin" style={{animationDuration: '3s'}} />
+  const ChartComponent = ({ chart }) => {
+    if (!chart) return null;
+
+    if (chart.type === 'widget') {
+      return (
+        <div className="space-y-3 mt-3 bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30 p-4 rounded-xl backdrop-blur-sm">
+          <div className="flex items-end gap-2">
+            <div>
+              <p className="text-2xl font-black bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">{chart.data.savings}</p>
+              <p className="text-xs text-gray-400">potential savings</p>
             </div>
-            <h2 className="text-2xl font-bold">Chat with AI Coach</h2>
+            <div className="ml-auto text-right">
+              <p className="text-sm font-semibold text-gray-300">{chart.data.category}</p>
+              <p className="text-xs text-gray-500">top opportunity</p>
+            </div>
           </div>
-          <p className="text-indigo-100 mb-4">Ask me anything about your finances!</p>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[
-              { q: "Give me a breakdown", icon: "📊" },
-              { q: "How can I save more?", icon: "💰" },
-              { q: "Analyze my food spending", icon: "🍕" },
-              { q: "Tips to reach my goal", icon: "🎯" }
-            ].map(item => (
-              <button
-                key={item.q}
-                onClick={() => handleQuickQuestion(item.q)}
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-sm py-3 px-3 rounded-lg transition-all transform hover:scale-105 text-left flex items-center gap-2"
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="text-xs">{item.q}</span>
-              </button>
+          <div className="space-y-2">
+            {chart.data.tips.map((tip, idx) => (
+              <div key={idx} className="text-xs text-gray-300 bg-slate-800/50 p-2 rounded border border-green-500/20">
+                {tip}
+              </div>
             ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full mt-3 bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-green-500/20 rounded-xl p-3 backdrop-blur-sm">
+        {chart.type === 'area' && (
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={chart.data}>
+              <defs>
+                <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.1} />
+              <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', borderRadius: '8px', color: '#fff' }} />
+              <Legend />
+              <Area type="monotone" dataKey="amount" stroke="#10b981" fillOpacity={1} fill="url(#colorAmount)" name="Spending" />
+              {chart.data[0]?.budget && <Line type="monotone" dataKey="budget" stroke="#9ca3af" strokeDasharray="5 5" name="Budget" />}
+              {chart.data[0]?.predicted && <Line type="monotone" dataKey="predicted" stroke="#f59e0b" strokeDasharray="5 5" name="Predicted" />}
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+
+        {chart.type === 'pie' && (
+          <ResponsiveContainer width="100%" height={240}>
+            <RechartsChart>
+              <Pie
+                data={chart.data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, value }) => `${name}: ${value}%`}
+                outerRadius={75}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {chart.data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', color: '#fff' }} />
+            </RechartsChart>
+          </ResponsiveContainer>
+        )}
+
+        {chart.type === 'line' && (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={chart.data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.1} />
+              <XAxis dataKey="day" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', color: '#fff' }} />
+              <Legend />
+              <Line type="monotone" dataKey="spending" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981', r: 4 }} name="Actual" />
+              <Line type="monotone" dataKey="predicted" stroke="#f59e0b" strokeWidth={2} strokeDasharray="5 5" name="AI Prediction" />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+
+        {chart.type === 'bar' && (
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chart.data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.1} />
+              <XAxis dataKey="category" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', color: '#fff' }} />
+              <Legend />
+              <Bar dataKey="budget" fill="#10b981" name="Budget" />
+              <Bar dataKey="spent" fill="#f59e0b" name="Spent" />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+
+        {chart.type === 'health' && (
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chart.data} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.1} />
+              <XAxis type="number" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis dataKey="metric" type="category" stroke="#6b7280" width={80} style={{ fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', color: '#fff' }} />
+              <Bar dataKey="value" fill="#10b981" name="Score" />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+
+        {chart.type === 'scatter' && (
+          <ResponsiveContainer width="100%" height={240}>
+            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.1} />
+              <XAxis type="number" dataKey="x" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <YAxis type="number" dataKey="y" stroke="#6b7280" style={{ fontSize: '12px' }} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #10b981', color: '#fff' }} />
+              <Scatter name="Months" data={chart.data} fill="#10b981" />
+            </ScatterChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 overflow-hidden">
+      {/* Animated background elements */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      </div>
+
+      {/* Hero Header */}
+      <div className="relative border-b border-green-500/20 backdrop-blur-sm z-10">
+        <div className="max-w-7xl mx-auto p-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl blur-lg opacity-75 animate-pulse" />
+              <div className="relative w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-green-500/50">
+                <Brain className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-4xl font-black bg-gradient-to-r from-green-400 via-emerald-300 to-teal-300 bg-clip-text text-transparent drop-shadow-lg">
+                NeuroFin Coach
+              </h1>
+              <p className="text-gray-400 text-sm font-medium">Next-gen AI financial intelligence powered by neural networks</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Chat Window */}
-      <div className="bg-white rounded-2xl shadow-lg border-2 border-indigo-100 flex flex-col" style={{ height: '550px' }}>
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {chatMessages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} fade-in-up`}>
-              <div className={`max-w-[85%] rounded-2xl ${
-                msg.role === 'user' 
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg' 
-                  : 'bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 shadow-md'
-              } p-4`}>
-                {msg.role === 'assistant' && (
-                  <>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                        <Sparkles className="w-4 h-4 text-white" />
+      {/* Feature Insights at Top - 8 options now */}
+      <div className="border-b border-green-500/20 backdrop-blur-sm p-6 z-10 overflow-x-auto">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-sm font-bold text-gray-300 mb-4 uppercase tracking-widest">AI Capabilities</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {quickInsights.map((insight) => {
+              const IconComponent = insight.icon;
+              const isSelected = selectedWidget === insight.id;
+              
+              return (
+                <button
+                  key={insight.id}
+                  onClick={() => handleQuickInsight(insight)}
+                  className={`group relative overflow-hidden rounded-xl p-4 text-left transition-all duration-300 transform hover:scale-105 ${
+                    isSelected ? 'ring-2 ring-green-400' : ''
+                  }`}
+                >
+                  {/* Animated background */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${insight.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <div className="absolute inset-0 border border-green-500/20 group-hover:border-green-500/60 rounded-xl transition-colors" />
+                  
+                  {/* Glow effect */}
+                  <div className={`absolute -inset-1 bg-gradient-to-r ${insight.color} rounded-xl blur opacity-0 group-hover:opacity-30 transition-opacity duration-300 -z-10`} />
+                  
+                  {/* Content */}
+                  <div className="relative z-10">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`${insight.accent} p-2.5 rounded-lg group-hover:scale-110 transition-transform shadow-lg`}>
+                        <IconComponent className="w-5 h-5 text-white" />
                       </div>
-                      <span className="text-xs font-bold text-indigo-600">NeuroFin AI</span>
-                      <div className="flex-1"></div>
-                      <Zap className="w-4 h-4 text-indigo-400" />
+                      <ArrowUpRight className="w-4 h-4 text-gray-500 group-hover:text-green-400 transition-colors opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </div>
-                    
-                    {/* Graphic Element */}
-                    {msg.hasGraphic && <MessageGraphic type={msg.graphicType} />}
-                  </>
-                )}
-                
-                <p className="whitespace-pre-line text-sm leading-relaxed">
-                  {msg.content}
-                </p>
-                
-                {msg.role === 'user' && (
-                  <div className="text-xs opacity-70 mt-2 text-right">
-                    Just now
+                    <h3 className="font-bold text-gray-100 text-sm group-hover:text-green-300 transition-colors">{insight.title}</h3>
+                    <p className="text-xs text-gray-400 group-hover:text-gray-300 transition-colors">{insight.subtitle}</p>
                   </div>
-                )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto p-6 z-10">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {msg.sender === 'ai' && msg.showIcon && (
+                <div className="relative flex-shrink-0">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <Brain className="w-5 h-5 text-white" />
+                  </div>
+                </div>
+              )}
+              <div className={`max-w-2xl ${msg.sender === 'user' ? 'flex justify-end' : ''}`}>
+                <div className={`${msg.sender === 'user' ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-3xl rounded-br-none' : 'bg-gradient-to-br from-slate-800 to-slate-900 border border-green-500/30 text-gray-100 rounded-3xl rounded-bl-none'} px-5 py-3 shadow-xl backdrop-blur`}>
+                  <p className="text-sm">{msg.text}</p>
+                  {msg.chart && <ChartComponent chart={msg.chart} />}
+                  {msg.showSuggestions && (
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {suggestedResponses.map((response, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => handleSuggestedResponse(response)}
+                          className="text-xs bg-green-500/20 hover:bg-green-500/40 border border-green-500/40 text-green-300 px-3 py-2 rounded-full transition-all hover:scale-105 font-semibold"
+                        >
+                          {response}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
-          
-          {isTyping && (
-            <div className="flex justify-start fade-in-up">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-4 shadow-md">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-3 h-3 text-white animate-spin" />
-                  </div>
-                  <span className="text-xs font-semibold text-gray-500">AI is thinking...</span>
-                </div>
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-indigo-400 rounded-full typing-dot"></div>
-                  <div className="w-2 h-2 bg-purple-400 rounded-full typing-dot"></div>
-                  <div className="w-2 h-2 bg-pink-400 rounded-full typing-dot"></div>
+
+          {loading && (
+            <div className="flex justify-start gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0">
+                <Brain className="w-5 h-5 text-white animate-pulse" />
+              </div>
+              <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-green-500/30 px-5 py-3 rounded-3xl rounded-bl-none">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" />
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
                 </div>
               </div>
             </div>
           )}
-          <div ref={chatEndRef} />
+          <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Enhanced Input Area */}
-        <div className="border-t-2 border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 p-4">
-          <div className="flex gap-2">
+      {/* Input & Questions Area */}
+      <div className="bg-gradient-to-t from-gray-950 to-slate-900/50 border-t border-green-500/20 p-6 backdrop-blur-sm z-10">
+        <div className="max-w-4xl mx-auto space-y-4">
+          {/* User Question Quick Access - 8 options now */}
+          <div>
+            <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Quick Questions</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {userQuestions.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleUserQuestion(q.text)}
+                  className="group relative overflow-hidden rounded-lg p-3 text-left text-xs transition-all hover:scale-105 bg-gradient-to-br from-slate-800 to-slate-900 border border-green-500/20 hover:border-green-500/60 hover:bg-gradient-to-br hover:from-green-500/20 hover:to-emerald-600/10"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity" />
+                  <div className="relative z-10 font-medium text-gray-300 group-hover:text-green-300 transition-colors">
+                    <span className="mr-1">{q.icon}</span>{q.text}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Input Area */}
+          <div className="flex gap-2 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-md border border-green-500/30 rounded-full p-1.5 hover:border-green-500/60 transition-all focus-within:border-green-500">
             <input
               type="text"
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Ask about your spending, goals, tips..."
-              className="flex-1 px-4 py-3 border-2 border-indigo-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white shadow-sm"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Ask anything about your finances..."
+              className="flex-1 bg-transparent px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none text-sm font-medium"
             />
             <button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim()}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 disabled:transform-none flex items-center gap-2 shadow-lg"
+              onClick={handleSend}
+              disabled={loading}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-full flex items-center gap-2 transition-all font-bold text-sm hover:shadow-2xl hover:shadow-green-500/50 shadow-lg shadow-green-600/30"
             >
-              <Send className="w-5 h-5" />
-              <span className="hidden sm:inline font-medium">Send</span>
+              <Send className="w-4 h-4" />
             </button>
-          </div>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <Sparkles className="w-3 h-3 text-indigo-400" />
-            <p className="text-xs text-gray-500 text-center">
-              Try: "Give me a breakdown" or "How can I save more?"
-            </p>
-            <Sparkles className="w-3 h-3 text-purple-400" />
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default AIChat;
+}

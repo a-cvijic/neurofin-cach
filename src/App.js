@@ -7,6 +7,7 @@ import Goals from "./components/Goals";
 import Transactions from "./components/Transactions";
 import AIChat from "./components/AIChat";
 import { MOCK_TRANSACTIONS, SAVING_GOAL } from "./data/mockData";
+import Footer from "./components/Footer";
 
 const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -27,13 +28,11 @@ const App = () => {
       .sort((a, b) => b.value - a.value);
   }, []);
 
-  // Total spent
   const totalSpent = useMemo(
     () => MOCK_TRANSACTIONS.reduce((sum, t) => sum + t.amount, 0),
     []
   );
 
-  // Insights
   const insights = useMemo(() => {
     const foodDelivery =
       categoryData.find((c) => c.name === "Food Delivery")?.value || 0;
@@ -96,7 +95,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950">
-      {/* Animated background glow */}
+      {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-600/10 rounded-full blur-3xl animate-pulse" />
         <div
@@ -118,15 +117,11 @@ const App = () => {
               savingGoal={SAVING_GOAL}
             />
           )}
-
           {activeTab === "insights" && <AIInsights insights={insights} />}
-
           {activeTab === "goals" && <Goals goals={[SAVING_GOAL]} />}
-
           {activeTab === "transactions" && (
             <Transactions transactions={MOCK_TRANSACTIONS} />
           )}
-
           {activeTab === "chat" && (
             <AIChat
               categoryData={categoryData}
@@ -135,6 +130,9 @@ const App = () => {
             />
           )}
         </main>
+
+        {/* 👇 Added Footer (nothing else touched) */}
+        <Footer />
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ const Dashboard = ({ categoryData, totalSpent, transactionCount, savingGoal }) =
               </div>
               <div className="hidden md:flex items-center gap-2">
                 <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                <span className="text-emerald-400/70 text-xs uppercase tracking-widest font-semibold">Live Data</span>
+                <span className="text-emerald-400/70 text-xs uppercase tracking-widest font-semibold">Viewing Demo Data | Connect Your Bank</span>
               </div>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Sparkles, Brain, ChevronRight, X } from "lucide-react";
+import { Sparkles, ChevronRight, X } from "lucide-react";
 
 export default function InteractiveWalkthrough({ step, onNext, onBack, onSkip, onClose }) {
   const [highlightRect, setHighlightRect] = useState(null);

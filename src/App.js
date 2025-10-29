@@ -6,11 +6,19 @@ import AIInsights from "./components/AIInsight";
 import Goals from "./components/Goals";
 import Transactions from "./components/Transactions";
 import AIChat from "./components/AIChat";
+import ImpulseGuardTab from "./components/ImpulseGuardTab";
+import ImpulseGuard from "./components/ImpulseGuard";
 import { MOCK_TRANSACTIONS, SAVING_GOAL } from "./data/mockData";
 import Footer from "./components/Footer";
 
 const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [impulseGuardEnabled, setImpulseGuardEnabled] = useState(true);
+  const [impulseGuardStats, setImpulseGuardStats] = useState({
+    saved: 340,
+    prevented: 7,
+    currentStreak: 12,
+  });
 
   // Compute category totals
   const categoryData = useMemo(() => {
@@ -60,7 +68,7 @@ const App = () => {
         suggestion:
           foodDelivery > groceries
             ? "Try home-cooked meals twice a week to reduce delivery costs."
-            : "Maintain this balance — it’s keeping your finances stable!",
+            : "Maintain this balance — it's keeping your finances stable!",
         impact: foodDelivery > groceries ? "€60/month" : "€120/year saved",
       },
       {
@@ -87,11 +95,22 @@ const App = () => {
           100
         ).toFixed(0)}% to your €${SAVING_GOAL.target} goal.`,
         suggestion:
-          "Add an extra €10/week — you’ll hit your target one week early!",
+          "Add an extra €10/week — you'll hit your target one week early!",
         impact: "€55 remaining",
       },
     ];
   }, [categoryData, totalSpent]);
+
+  // Handle Impulse Guard completion
+  const handleImpulseGuardComplete = (action, amount) => {
+    if (action === "saved") {
+      setImpulseGuardStats({
+        ...impulseGuardStats,
+        saved: impulseGuardStats.saved + amount,
+        prevented: impulseGuardStats.prevented + 1,
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950">
@@ -129,11 +148,23 @@ const App = () => {
               savingGoal={SAVING_GOAL}
             />
           )}
+          {activeTab === "impulseguard" && (
+            <ImpulseGuardTab
+              stats={impulseGuardStats}
+              isEnabled={impulseGuardEnabled}
+              onToggle={setImpulseGuardEnabled}
+            />
+          )}
         </main>
 
-        {/* 👇 Added Footer (nothing else touched) */}
         <Footer />
       </div>
+
+      {/* Impulse Guard Component - Always rendered, shows when triggered */}
+      <ImpulseGuard
+        isEnabled={impulseGuardEnabled}
+        onComplete={handleImpulseGuardComplete}
+      />
     </div>
   );
 };

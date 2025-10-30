@@ -1,14 +1,16 @@
 import React from "react";
-import { LayoutDashboard, Lightbulb, Target, Receipt, MessageCircle, Shield } from "lucide-react";
+import { Heart, LayoutDashboard, Lightbulb, Target, Receipt, MessageCircle, Shield, Building2 } from "lucide-react";
 
 const Navigation = ({ activeTab, setActiveTab }) => {
   const tabs = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "healthscore", label: "Health Score", icon: Heart },
     { id: "impulseguard", label: "Impulse Guard", icon: Shield },
+    { id: "dashboard", label: "Overview", icon: LayoutDashboard },
     { id: "insights", label: "AI Insights", icon: Lightbulb },
     { id: "goals", label: "Goals", icon: Target },
     { id: "transactions", label: "Transactions", icon: Receipt },
     { id: "chat", label: "AI Chat", icon: MessageCircle },
+    { id: "bankdashboard", label: "Bank View", icon: Building2, highlight: true },
   ];
 
   return (
@@ -25,11 +27,16 @@ const Navigation = ({ activeTab, setActiveTab }) => {
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-green-400 border border-green-500/30"
+                    : tab.highlight
+                    ? "text-purple-400 hover:text-purple-300 hover:bg-purple-900/20 border border-purple-500/20"
                     : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50"
                 }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
+                {tab.highlight && !isActive && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded">B2B</span>
+                )}
               </button>
             );
           })}

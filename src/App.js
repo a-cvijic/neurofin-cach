@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
+import FinancialHealthScore from "./components/FinancialHealthScore";
 import Dashboard from "./components/Dashboard";
 import AIInsights from "./components/AIInsight";
 import Goals from "./components/Goals";
@@ -8,11 +9,12 @@ import Transactions from "./components/Transactions";
 import AIChat from "./components/AIChat";
 import ImpulseGuardTab from "./components/ImpulseGuardTab";
 import ImpulseGuard from "./components/ImpulseGuard";
+import BankDashboard from "./components/BankDashboard";
 import { MOCK_TRANSACTIONS, SAVING_GOAL } from "./data/mockData";
 import Footer from "./components/Footer";
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("healthscore");
   const [impulseGuardEnabled, setImpulseGuardEnabled] = useState(true);
   const [impulseGuardStats, setImpulseGuardStats] = useState({
     saved: 340,
@@ -128,6 +130,14 @@ const App = () => {
         <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <main className="max-w-7xl mx-auto px-6 py-6">
+          {activeTab === "healthscore" && (
+            <FinancialHealthScore
+              impulseGuardEnabled={impulseGuardEnabled}
+              categoryData={categoryData}
+              totalSpent={totalSpent}
+              savingGoal={SAVING_GOAL}
+            />
+          )}
           {activeTab === "dashboard" && (
             <Dashboard
               categoryData={categoryData}
@@ -155,6 +165,7 @@ const App = () => {
               onToggle={setImpulseGuardEnabled}
             />
           )}
+          {activeTab === "bankdashboard" && <BankDashboard />}
         </main>
 
         <Footer />

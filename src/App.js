@@ -3,7 +3,6 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import FinancialHealthScore from "./components/FinancialHealthScore";
 import Overview from "./components/Overview";
-import Transactions from "./components/Transactions";
 import AIChat from "./components/AIChat";
 import ReferralFunnel from "./components/ReferralFunnel";
 import BankDashboard from "./components/BankDashboard";
@@ -56,6 +55,7 @@ const App = () => {
               totalSpent={totalSpent}
               transactionCount={MOCK_TRANSACTIONS.length}
               savingGoal={SAVING_GOAL}
+              transactions={MOCK_TRANSACTIONS}
             />
           )}
           {activeTab === "healthscore" && (
@@ -66,9 +66,6 @@ const App = () => {
             />
           )}
           {activeTab === "referralfunnel" && <ReferralFunnel />}
-          {activeTab === "transactions" && (
-            <Transactions transactions={MOCK_TRANSACTIONS} />
-          )}
           {activeTab === "chat" && (
             <AIChat
               categoryData={categoryData}

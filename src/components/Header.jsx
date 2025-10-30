@@ -24,7 +24,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">NeuroFin Coach</h1>
+            <h1 className="text-2xl font-bold text-white">FinSense</h1>
             <p className="text-slate-400 text-sm">Your AI Financial Assistant</p>
           </div>
           <div className="flex items-center gap-6">

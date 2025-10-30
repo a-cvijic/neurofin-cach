@@ -1,13 +1,11 @@
 import React from "react";
-import { Heart, LayoutDashboard, Lightbulb, Target, Receipt, MessageCircle, Shield, Building2 } from "lucide-react";
+import { Heart, LayoutDashboard, TrendingUp, Receipt, MessageCircle, Building2 } from "lucide-react";
 
 const Navigation = ({ activeTab, setActiveTab }) => {
   const tabs = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "healthscore", label: "Health Score", icon: Heart },
-    { id: "impulseguard", label: "Impulse Guard", icon: Shield },
-    { id: "dashboard", label: "Overview", icon: LayoutDashboard },
-    { id: "insights", label: "AI Insights", icon: Lightbulb },
-    { id: "goals", label: "Goals", icon: Target },
+    { id: "referralfunnel", label: "Referral Funnel", icon: TrendingUp },
     { id: "transactions", label: "Transactions", icon: Receipt },
     { id: "chat", label: "AI Chat", icon: MessageCircle },
     { id: "bankdashboard", label: "Bank View", icon: Building2, highlight: true },
